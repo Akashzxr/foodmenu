@@ -1,16 +1,19 @@
-import type { CollectionConfig } from 'payload'
+import { CollectionConfig } from 'payload';
 
-export const Media: CollectionConfig = {
-  slug: 'media',
-  access: {
-    read: () => true,
+const Media: CollectionConfig = {
+  slug: 'media', // Unique identifier for the collection
+  upload: {
+    staticDir: 'media',  // The directory where media files are stored
+    mimeTypes: ['image/*'], // Restrict uploads to image files only
   },
   fields: [
     {
-      name: 'alt',
+      name: 'altText',
       type: 'text',
+      label: 'Alt Text',
       required: true,
     },
   ],
-  upload: true,
-}
+};
+
+export default Media;
