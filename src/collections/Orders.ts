@@ -39,4 +39,8 @@ const Orders: CollectionConfig = {
       required: true,
     },
   ],
+  access: {
+    // Allow public read access
+    read: () => true,
+  },
 }

@@ -14,6 +14,10 @@ const Media: CollectionConfig = {
       required: true,
     },
   ],
+  access: {
+    // Allow public read access
+    read: () => true,
+  },
 };
 
 export default Media;

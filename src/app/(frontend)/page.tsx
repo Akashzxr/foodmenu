@@ -1,9 +1,16 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCartShopping, faEye, faHeart, faStar } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { setBranch, setItems } from '@/redux/slices/branchSlice'
+import { Menu } from '@/payload-types'
 
+// Haversine distance function to calculate distance between two points
 const haversineDistance = (
   coords1: { lat: number; lng: number },
   coords2: { lat: number; lng: number },
@@ -22,81 +29,91 @@ const haversineDistance = (
   return R * c
 }
 
+// Define the Branch and MenuItem types for type safety
+type Branch = {
+  id: string
+  name: string
+  location: [number, number]
+  radius: number
+}
+
+type MenuItem = {
+  id: string
+  name: string
+  image: {
+    url: string
+    altText: string
+  }
+  type: string
+  price: number
+  offerPrice:number
+  description: string
+}
+
 export default function Page() {
+  const dispatch = useDispatch()
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
-  const [nearestBranch, setNearestBranch] = useState<any>(null)
-  const [menu, setMenu] = useState<any>([])
+  const [nearestBranch, setNearestBranch] = useState<Branch | null>(null)
+  const [menu, setMenu] = useState<MenuItem[]>([])
 
+  // Fetch user location and nearest branch on component mount
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords
-        setUserLocation({ lat: latitude, lng: longitude })
+    const fetchData = async () => {
+      try {
+        //get user location
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords
+          setUserLocation({ lat: latitude, lng: longitude })
 
-        const branches = await axios.get('http://localhost:3000/api/branches')
+          //fetch branches from api
+          const { data } = await axios.get<{ docs: Branch[] }>('http://localhost:3000/api/branches')
 
-        let nearest = null
-        let minDistance = Infinity
-       
-        branches.data.docs.forEach((branch: any) => {
-          const distance = haversineDistance(
-            { lat: latitude, lng: longitude },
-            { lat: branch.location[1], lng: branch.location[0] },
-          )
+          let nearest: Branch | null = null
+          let minDistance = Infinity
 
-          if (distance <= branch.radius && distance < minDistance) {
-            nearest = branch
-            minDistance = distance
+          //find the nearest branch
+          data.docs.forEach((branch) => {
+            const distance = haversineDistance(
+              { lat: latitude, lng: longitude },
+              { lat: branch.location[1], lng: branch.location[0] },
+            )
+
+            if (distance <= branch.radius && distance < minDistance) {
+              nearest = branch;
+              minDistance = distance;
+            }
+          })
+
+          setNearestBranch(nearest)
+
+          if (nearest) {
+            // Dispatch the nearest branch to the Redux store
+            dispatch(setBranch(nearest))
+
+            //fetch the menu for the nearest branch
+            const menuResponse = await axios.get<{ docs: MenuItem[] }>(`/api?branch=${nearest.id}`)
+
+            console.log(menuResponse)
+            setMenu(menuResponse.data.docs)
+            //Dispatch the menu items to the Redux store
+            dispatch(setItems(menuResponse.data.docs))
+          } else {
+            setMenu([])
           }
         })
+      } catch (error) {
+        console.error('error fetching data', error)
+      }
+    }
 
-        setNearestBranch(nearest)
-        console.log('nearest='+nearest.name);
-        
-
-        if (nearest) {
-          const menu = await axios.get(`/api?branch=${nearest.id}`)
-          console.log(menu.data);
-          setMenu(menu.data.docs[0].items)
-        }
-      },
-      (err) => console.error(err),
-    )
-  }, [])
-
-  useEffect(() => {}, [menu])
-
-  /* const handleOrder = (items: any[], paymentMethod: string) => {
-    const message = `Order Details:\nBranch: ${nearestBranch.name}\nItems: ${items.map((item) => `${item.name} x${item.quantity}`).join(', ')}\nPayment Method: ${paymentMethod}`
-    window.location.href = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`
-  } */
+    fetchData()
+  }, [dispatch])
 
   if (!userLocation) return <p>Getting your location...</p>
+  if (!menu.length) return <p>Loading menu...</p>
 
   return (
     <div>
-      {/* {nearestBranch ? (
-        <div>
-          <h1>{nearestBranch.name} Menu</h1>
-          <h1>
-            {userLocation.lat},{userLocation.lng}
-          </h1>
-          <ul>
-            {menu.map((item: any) => (
-              <li key={item.name}>
-                {item.name} - ${item.price}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div>
-          <p>No branches found within your area.</p>
-          <h1>
-            {userLocation.lat},{userLocation.lng}
-          </h1>
-        </div>
-      )} */}
       <div className="slider-list owl-carousel">
         <div className="slider-area d-flex align-items-center">
           <div className="container">
@@ -149,7 +166,7 @@ export default function Page() {
                 <div className="produc-result-counter">
                   <p>Showing 1–12 of 16 results</p>
                 </div>
-                <div className="form">
+                <div className="form" style={{ visibility: 'hidden' }}>
                   <select className="order-by">
                     <option value="text">Default shorting</option>
                     <option value="text">Short by popularity</option>
@@ -180,17 +197,20 @@ export default function Page() {
                       <span>(4.00)</span>
                     </div>
                     <div className="product-title">
-                      <a href="shope details.html">
+                      <Link href={`/items/${item.id}`}>
                         <h3>{item.name}</h3>
-                      </a>
+                      </Link>
                     </div>
                     <div className="product-price">
                       <span>${item.price}</span>
-                      <del>$99.99</del>
+                      {
+                        item.offerPrice ? <del>${item.offerPrice}</del> : null
+                      }
+                      
                     </div>
                     <div className="product-icon">
                       <ul>
-                        <li>
+                        <li style={{ visibility: 'hidden' }}>
                           <a href="#">
                             <i>
                               <FontAwesomeIcon icon={faEye} style={{ color: 'white' }} />
@@ -204,7 +224,7 @@ export default function Page() {
                             </i>
                           </a>
                         </li>
-                        <li>
+                        <li style={{ visibility: 'hidden' }}>
                           <a href="#">
                             <i>
                               <FontAwesomeIcon icon={faHeart} style={{ color: 'white' }} />
@@ -218,7 +238,7 @@ export default function Page() {
               </div>
             ))}
           </div>
-          <div className="row ">
+          <div className="row " style={{ visibility: 'hidden' }}>
             <div className="col-md-12">
               <div className="as-pagination text-center">
                 <ul>

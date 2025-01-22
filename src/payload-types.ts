@@ -15,6 +15,7 @@ export interface Config {
     branches: Branch;
     menus: Menu;
     media: Media;
+    items: Item;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -25,6 +26,7 @@ export interface Config {
     branches: BranchesSelect<false> | BranchesSelect<true>;
     menus: MenusSelect<false> | MenusSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    items: ItemsSelect<false> | ItemsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -135,6 +137,22 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "items".
+ */
+export interface Item {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  offerPrice?: number | null;
+  description: string;
+  image?: (string | null) | Media;
+  branches: (string | Branch)[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -155,6 +173,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'items';
+        value: string | Item;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -260,6 +282,21 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "items_select".
+ */
+export interface ItemsSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  price?: T;
+  offerPrice?: T;
+  description?: T;
+  image?: T;
+  branches?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -11,6 +11,7 @@ import { Users } from './collections/Users'
 import { Branches } from './collections/Branches'
 import { Menus } from './collections/Menu'
 import Media from './collections/Media'
+import { Items } from './collections/Items'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,7 +23,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Branches, Menus, Media],
+  collections: [Users, Branches, Menus, Media, Items],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

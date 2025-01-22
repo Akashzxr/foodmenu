@@ -41,4 +41,8 @@ export const Menus: CollectionConfig = {
       ],
     },
   ],
+  access: {
+    // Allow public read access
+    read: () => true,
+  },
 }

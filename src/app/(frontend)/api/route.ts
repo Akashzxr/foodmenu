@@ -1,17 +1,18 @@
- import { getPayload } from 'payload'
+import { getPayload } from 'payload'
 import config from '@payload-config'
 import { NextRequest } from 'next/server';
 
   export async function GET(request:NextRequest){
     const payload = await getPayload({ config })
     const  branch  = request.nextUrl.searchParams.get("branch");
-    const menu = await payload.find({
-        collection: 'menus',
+    const items = await payload.find({
+        collection: 'items',
         where: {
-          branch: {
+          'branches.id': {
             equals: branch,
           },
         },
       });
-    return Response.json(menu);
+      
+    return Response.json(items);
   }

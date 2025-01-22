@@ -26,6 +26,55 @@ body{
   margin: 0;
 }
 
+
+/* Container for branch details */
+.branch-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #007bff;
+}
+
+/* Each branch card */
+.branch-card {
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Branch name styling */
+.branch-name {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+/* Branch location styling */
+.branch-location {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Hover effect on branch card */
+.branch-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  border-color: #007bff;
+}
+
 a{
  text-decoration: none;
 }
@@ -99,9 +148,8 @@ a.handbag {
   position: relative;
 }
 
-a.handbag:before {
+.cart-count {
   position: absolute;
-  content: "02";
   font-size: 10px;
   font-weight: 500;
   background: #f7c500;
@@ -1358,9 +1406,11 @@ select.order-by {
   margin-left: 20px;
 }
 .product-thumb img {
-  border-radius: 100%;
+  border-radius: 28px;
   width: 210px;
+  height: 210px;
   padding: 10px;
+  object-fit: cover;
 }
 
 .product-content a{

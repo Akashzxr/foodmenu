@@ -2,6 +2,9 @@ import type { CollectionConfig } from 'payload'
 
 export const Branches: CollectionConfig = {
     slug: 'branches',
+    admin: {
+      useAsTitle: 'name',
+    },
     fields: [
       {
         name: 'name',
@@ -21,5 +24,9 @@ export const Branches: CollectionConfig = {
         defaultValue: 20,
       },
     ],
+    access: {
+      // Allow public read access
+      read: () => true,
+    },
   };
   
