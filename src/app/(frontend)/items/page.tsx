@@ -8,115 +8,39 @@ import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux'
 
 const Page = () => {
-  const items = useSelector((state: RootState) => state.branch.items);
-  const dispatch = useDispatch();
+  const items = useSelector((state: RootState) => state.branch.items)
+  const dispatch = useDispatch()
 
-  if(!items) return <p>Loading Menu</p>
+  if (!items) return <p>Loading Menu</p>
 
   return (
-    <div>
-      <div className="shope-area">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-12">
-              <div className="product-header">
-                <div className="produc-result-counter">
-                  <p>MENU</p>
-                </div>
-                <div className="form" style={{ visibility: 'hidden' }}>
-                  <select className="order-by">
-                    <option value="text">Default shorting</option>
-                    <option value="text">Short by popularity</option>
-                    <option value="text">Short by avarage rating</option>
-                    <option value="text">Short by latest</option>
-                    <option value="text">Short by price: low to high</option>
-                    <option value="text">Short by: high to low</option>
-                  </select>
-                </div>
+    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+       <h1 className="text-4xl font-bold text-gray-900 mb-8">Our Menu</h1>
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Menu items will be populated from Supabase */}
+        {items.map((item: any) => (
+          <div key={item.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+              <img
+                src={item.image.url}
+                alt={item.image.altText}
+                className="w-full h-48 object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <Link href={`/items/${item.id}`}>
+                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+              </Link>
+              <p className="text-gray-600 mt-1">Fresh tomatoes, mozzarella, basil</p>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-lg font-bold text-orange-500">${item.price}</span>
+                <button onClick={()=>dispatch(addCartItem(item))} className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors">
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>
-          <div className="row">
-            {items.map((item: any) => (
-              <div key={item.name} className="col-lg-3 col-md-6">
-                <div className="shop-product">
-                  <div className="product-thumb text-center">
-                    <img src={item.image.url} alt={item.image.altText} />
-                  </div>
-                  <div className="product-content text-center">
-                    <a href="shope details.html">{item.type}</a>
-                    <div className="product-rating">
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <span>(4.00)</span>
-                    </div>
-                    <div className="product-title">
-                      <Link href={`/items/${item.id}`}>
-                        <h3>{item.name}</h3>
-                      </Link>
-                    </div>
-                    <div className="product-price">
-                      <span>${item.price}</span>
-                      {
-                        item.offerPrice ? <del>${item.offerPrice}</del> : null
-                      }
-                    </div>
-                    <div className="product-icon">
-                      <ul>
-                        <li style={{ visibility: 'hidden' }}>
-                          <a href="#">
-                            <i>
-                              <FontAwesomeIcon icon={faEye} style={{ color: 'white' }} />
-                            </i>
-                          </a>
-                        </li>
-                        <li className="active" onClick={()=>dispatch(addCartItem(item))}>
-                          <a>
-                            <i>
-                              <FontAwesomeIcon icon={faCartShopping} style={{ color: 'white' }} />
-                            </i>
-                          </a>
-                        </li>
-                        <li style={{ visibility: 'hidden' }}>
-                          <a href="#">
-                            <i>
-                              <FontAwesomeIcon icon={faHeart} style={{ color: 'white' }} />
-                            </i>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="row " style={{ visibility: 'hidden' }}>
-            <div className="col-md-12">
-              <div className="as-pagination text-center">
-                <ul>
-                  <li>
-                    <a href="shope details.html">1</a>
-                  </li>
-                  <li>
-                    <a href="shope details.html">2</a>
-                  </li>
-                  <li>
-                    <a href="shope details.html">3</a>
-                  </li>
-                  <li>
-                    <a href="shope details.html">
-                      <i className="bi bi-arrow-right-short"></i>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   )

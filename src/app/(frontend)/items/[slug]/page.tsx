@@ -1,6 +1,6 @@
 'use client'
 import { useParams } from 'next/navigation'
-import { faHeart } from '@fortawesome/free-solid-svg-icons'
+import { faHeart, faMinus, faPlus, faShoppingCart } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
@@ -11,6 +11,16 @@ const Page = () => {
   const [item, setItem] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const [quantity, setQuantity] = useState(1)
+
+  const handleDecrement = () => {
+    if (quantity > 1) setQuantity(quantity - 1)
+  }
+
+  const handleIncrement = () => {
+    setQuantity(quantity + 1)
+  }
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -34,48 +44,82 @@ const Page = () => {
   if (error) return <p>{error}</p>
 
   return (
-    <div className="container pt-5">
-      <div className="row justify-content-center gap-5">
-        <div className="col-lg-5 col-md-6">
-          <div className="tab style-two" style={{ width: '100%' }}>
-            <div className="tab_content" style={{ width: '100%', marginTop: '0' }}>
-              <div className="tabs_item" style={{ padding: '0' }}>
-                <div className="tabs-items-thumb">
-                  <img
-                    src={item.image.url}
-                    alt=""
-                    style={{ width: '100%', borderRadius: '13px' }}
-                  />
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full md:max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="md:flex">
+            {/* Image Section */}
+            <div className="md:w-1/2">
+              <div className="h-96 md:h-full relative">
+                <img
+                  src={item.image.url}
+                  alt="Truffle Pasta"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-semibold text-green-600">
+                  In Stock
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="col-lg-5 col-md-6">
-          <div className="product-about">
-            <div className="product-title style-two">
-              <h2>{item.name}</h2>
-            </div>
-            <div className="product-rate style-two">
-              <span>${item.price}</span>
-              {item.offerPrice ? <del>${item.offerPrice}</del> : null}
-            </div>
-            <div className="product-discription style-two">
-              <p>{item.description}</p>
-            </div>
-            <div className="product-action style-two">
-              <input
-                type="number"
-                id="quantity"
-                min="1"
-                max="10"
-                placeholder="1"
-                style={{ textAlign: 'center' }}
-              />
-              <button>ADD TO CART</button>
-            </div>
-            <div className="product-meta style-two">
-              <span>Category: {item.type}</span>
+
+            {/* Content Section */}
+            <div className="md:w-1/2 p-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">{item.name}</h1>
+              <p className="text-gray-600 mb-6">
+                Hand-crafted pasta tossed in a creamy truffle sauce with wild mushrooms, finished
+                with shaved Parmesan and fresh herbs. A perfect blend of earthy and luxurious
+                flavors.
+              </p>
+
+              {/* Price and Details */}
+              <div className="mb-6">
+                <div className="text-3xl font-bold text-gray-900 mb-2">${item.price}</div>
+               
+              </div>
+
+              {/* Quantity Selector */}
+              <div className="flex items-center mb-6">
+                <span className="mr-4 text-gray-700">Quantity:</span>
+                <div className="flex items-center border rounded-lg">
+                  <button
+                    onClick={handleDecrement}
+                    className="p-2 hover:bg-gray-100 transition-colors"
+                    aria-label="Decrease quantity"
+                  >
+                    <FontAwesomeIcon icon={faMinus} className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 py-2 text-center w-12">{quantity}</span>
+                  <button
+                    onClick={handleIncrement}
+                    className="p-2 hover:bg-gray-100 transition-colors"
+                    aria-label="Increase quantity"
+                  >
+                    <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Add to Cart Button */}
+              <button
+                className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold
+                        flex items-center justify-center space-x-2 hover:bg-green-700 
+                        transition-colors duration-200"
+              >
+                <FontAwesomeIcon icon={faShoppingCart} className="w-5 h-5" />
+                <span>Add to Cart - ${(item.price * quantity).toFixed(2)}</span>
+              </button>
+
+              {/* Additional Info */}
+              <div className="mt-6 space-y-2 text-sm text-gray-600">
+                <p className="flex items-center">
+                  <span className="w-4 h-4 mr-2">🕒</span>
+                  Preparation time: 20-25 minutes
+                </p>
+                <p className="flex items-center">
+                  <span className="w-4 h-4 mr-2">🌶️</span>
+                  Spice level: Mild
+                </p>
+              </div>
             </div>
           </div>
         </div>

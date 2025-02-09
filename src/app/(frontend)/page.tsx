@@ -1,14 +1,9 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCartShopping, faEye, faHeart, faStar } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '@/redux/store'
 import { setBranch, setItems } from '@/redux/slices/branchSlice'
-import { Menu } from '@/payload-types'
 
 // Haversine distance function to calculate distance between two points
 const haversineDistance = (
@@ -46,7 +41,8 @@ type MenuItem = {
   }
   type: string
   price: number
-  offerPrice:number
+  quantity:number
+  offerPrice: number
   description: string
 }
 
@@ -55,6 +51,7 @@ export default function Page() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [nearestBranch, setNearestBranch] = useState<Branch | null>(null)
   const [menu, setMenu] = useState<MenuItem[]>([])
+  const [ismenu,setIsmenu] = useState(true);
 
   // Fetch user location and nearest branch on component mount
   useEffect(() => {
@@ -79,26 +76,30 @@ export default function Page() {
             )
 
             if (distance <= branch.radius && distance < minDistance) {
-              nearest = branch;
-              minDistance = distance;
+              nearest = branch
+              minDistance = distance
             }
           })
 
-          setNearestBranch(nearest)
-
+          console.log("---------nearest---");
+          console.log(nearest);
+          
           if (nearest) {
+            setNearestBranch(nearest)
             // Dispatch the nearest branch to the Redux store
             dispatch(setBranch(nearest))
-
+            console.log(nearest);
+            
             //fetch the menu for the nearest branch
             const menuResponse = await axios.get<{ docs: MenuItem[] }>(`/api?branch=${nearest.id}`)
-
+      
             console.log(menuResponse)
             setMenu(menuResponse.data.docs)
             //Dispatch the menu items to the Redux store
             dispatch(setItems(menuResponse.data.docs))
           } else {
-            setMenu([])
+            setNearestBranch(null);
+            setMenu(null)
           }
         })
       } catch (error) {
@@ -110,157 +111,43 @@ export default function Page() {
   }, [dispatch])
 
   if (!userLocation) return <p>Getting your location...</p>
-  if (!menu.length) return <p>Loading menu...</p>
+  if (!ismenu) return <p>No Menus found on the Nearest Branch</p>
+  if (!menu.length)
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
+      </div>
+    )
 
   return (
-    <div>
-      <div className="slider-list owl-carousel">
-        <div className="slider-area d-flex align-items-center">
-          <div className="container">
-            <div className="row d-flex align-items-center">
-              <div className="col-lg-6 col-md-6">
-                <div className="slider-content">
-                  <div className="slider-content-title">
-                    <h1>
-                      <span>New</span> BURGERS
-                    </h1>
-                    <h1>BEST FAST FOOD</h1>
-                  </div>
-                  <div className="slider-content-discription">
-                    <p>
-                      We pride ourselves on sourcing incredible ingredients from ranchers, farmers,
-                      bakers, and food purveyors who all share our values.
-                    </p>
-                  </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-4xl font-bold text-gray-900 mb-8">Our Menu</h1>
 
-                  <div className="slider-content-btn">
-                    <a href="#">Our Menu</a>
-                  </div>
-                  <div className="slider-title">
-                    <h1>FOOD</h1>
-                  </div>
-                </div>
-              </div>
-              <div className="col-lg-6 col-md-6">
-                <div className="slider-thumb">
-                  <img src="assets/images/hero-img.png" alt="#" />
-                  <div className="slider-shape-1 bounce-animate">
-                    <img src="assets/images/banner-shape-1.png" alt="#" />
-                  </div>
-                  <div className="slider-shape-2">
-                    <img src="assets/images/banner-shaope-2.png" alt="#" />
-                  </div>
-                </div>
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Menu items will be populated from Supabase */}
+        {menu.map((item: any) => (
+          <div key={item.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+              <img
+                src={item.image.url}
+                alt={item.image.altText}
+                className="w-full h-48 object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <Link href={`/items/${item.id}`}>
+                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+              </Link>
+              <p className="text-gray-600 mt-1">Fresh tomatoes, mozzarella, basil</p>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-lg font-bold text-orange-500">${item.price}</span>
+                <button className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors">
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* products */}
-      <div className="shope-area">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-12">
-              <div className="product-header">
-                <div className="produc-result-counter">
-                  <p>Showing 1–12 of 16 results</p>
-                </div>
-                <div className="form" style={{ visibility: 'hidden' }}>
-                  <select className="order-by">
-                    <option value="text">Default shorting</option>
-                    <option value="text">Short by popularity</option>
-                    <option value="text">Short by avarage rating</option>
-                    <option value="text">Short by latest</option>
-                    <option value="text">Short by price: low to high</option>
-                    <option value="text">Short by: high to low</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="row">
-            {menu.map((item: any) => (
-              <div key={item.name} className="col-lg-3 col-md-6">
-                <div className="shop-product">
-                  <div className="product-thumb text-center">
-                    <img src={item.image.url} alt={item.image.altText} />
-                  </div>
-                  <div className="product-content text-center">
-                    <a href="shope details.html">{item.type}</a>
-                    <div className="product-rating">
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <FontAwesomeIcon icon={faStar} style={{ color: 'gold' }} />
-                      <span>(4.00)</span>
-                    </div>
-                    <div className="product-title">
-                      <Link href={`/items/${item.id}`}>
-                        <h3>{item.name}</h3>
-                      </Link>
-                    </div>
-                    <div className="product-price">
-                      <span>${item.price}</span>
-                      {
-                        item.offerPrice ? <del>${item.offerPrice}</del> : null
-                      }
-                      
-                    </div>
-                    <div className="product-icon">
-                      <ul>
-                        <li style={{ visibility: 'hidden' }}>
-                          <a href="#">
-                            <i>
-                              <FontAwesomeIcon icon={faEye} style={{ color: 'white' }} />
-                            </i>
-                          </a>
-                        </li>
-                        <li className="active">
-                          <a href="#">
-                            <i>
-                              <FontAwesomeIcon icon={faCartShopping} style={{ color: 'white' }} />
-                            </i>
-                          </a>
-                        </li>
-                        <li style={{ visibility: 'hidden' }}>
-                          <a href="#">
-                            <i>
-                              <FontAwesomeIcon icon={faHeart} style={{ color: 'white' }} />
-                            </i>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="row " style={{ visibility: 'hidden' }}>
-            <div className="col-md-12">
-              <div className="as-pagination text-center">
-                <ul>
-                  <li>
-                    <a href="shope details.html">1</a>
-                  </li>
-                  <li>
-                    <a href="shope details.html">2</a>
-                  </li>
-                  <li>
-                    <a href="shope details.html">3</a>
-                  </li>
-                  <li>
-                    <a href="shope details.html">
-                      <i className="bi bi-arrow-right-short"></i>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   )
