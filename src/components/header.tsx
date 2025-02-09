@@ -10,8 +10,8 @@ import { RootState } from '@/redux/store'
 const Header = () => {
   const [location, setLocation] = useState()
   const [count, setCount] = useState(0)
-  const cartCount = useSelector((state: RootState) => state.cart.cartItems);
-  const [isOpen,setIsopen] = useState(false);
+  const cartCount = useSelector((state: RootState) => state.cart.cartItems)
+  const [isOpen, setIsopen] = useState(false)
 
   //function for finding location name
   const findLocation = async (lat: number, long: number) => {
@@ -49,8 +49,13 @@ const Header = () => {
     <nav className="bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex items-center md:hidden">
-            <FontAwesomeIcon onClick={()=>setIsopen(!isOpen)} icon={faBars} className="h-8 w-8 text-orange-500" />
+          <div className="flex items-center">
+            <button className="md:hidden" onClick={() => setIsopen(!isOpen)}>
+              <FontAwesomeIcon
+                icon={faBars}
+                className="h-8 w-8 text-orange-500"
+              />
+            </button>
             <Link href="/" className="flex items-center">
               <span className="ml-2 text-xl font-bold text-gray-900">FoodOrder</span>
             </Link>
@@ -77,10 +82,12 @@ const Header = () => {
         </div>
 
         {/* mobile navigation */}
-        <div className={`md:hidden h-full bg-white fixed w-64 left-0 p-4 ${isOpen ? 'block' : 'hidden'}`}>
-          <div className='flex items-center'>
+        <div
+          className={`md:hidden h-full bg-white fixed w-64 left-0 p-4 ${isOpen ? 'block' : 'hidden'}`}
+        >
+          <div className="flex items-center">
             <FontAwesomeIcon icon={faLocationPin} className="me-2" />
-            <span className='block'>{location || 'loading location....'}</span>
+            <span className="block">{location || 'loading location....'}</span>
           </div>
         </div>
       </div>

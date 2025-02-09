@@ -63,7 +63,7 @@ export default function Page() {
           setUserLocation({ lat: latitude, lng: longitude })
 
           //fetch branches from api
-          const { data } = await axios.get<{ docs: Branch[] }>('http://localhost:3000/api/branches')
+          const { data } = await axios.get<{ docs: Branch[] }>('/api/branches')
 
           let nearest: Branch | null = null
           let minDistance = Infinity
