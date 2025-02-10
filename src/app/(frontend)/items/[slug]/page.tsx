@@ -5,12 +5,26 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
+type Item = {
+  id: string
+  name: string
+  image: {
+    url: string
+    altText: string
+  }
+  type: string
+  price: number
+  quantity:number
+  offerPrice: number
+  description: string
+}
+
 const Page = () => {
   const params = useParams()
   const id = params.slug
-  const [item, setItem] = useState(null)
+  const [item, setItem] = useState<Item>()
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null);
 
   const [quantity, setQuantity] = useState(1)
 
@@ -42,6 +56,7 @@ const Page = () => {
 
   if (loading) return <p>Loading...</p>
   if (error) return <p>{error}</p>
+  if (!item) return <p>no item detils found</p>
 
   return (
     <div className="min-h-screen bg-gray-50">

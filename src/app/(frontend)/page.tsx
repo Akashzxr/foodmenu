@@ -51,7 +51,7 @@ export default function Page() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [nearestBranch, setNearestBranch] = useState<Branch | null>(null)
   const [menu, setMenu] = useState<MenuItem[]>([])
-  const [ismenu,setIsmenu] = useState(true);
+  const [ismenu,setIsmenu] = useState<boolean | null>(true);
 
   // Fetch user location and nearest branch on component mount
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function Page() {
             console.log(nearest);
             
             //fetch the menu for the nearest branch
-            const menuResponse = await axios.get<{ docs: MenuItem[] }>(`/api?branch=${nearest.id}`)
+            const menuResponse = await axios.get<{ docs: MenuItem[] }>(`/api?branch=${(nearest as Branch).id}`)
       
             console.log(menuResponse)
             setMenu(menuResponse.data.docs)
@@ -99,7 +99,6 @@ export default function Page() {
             dispatch(setItems(menuResponse.data.docs))
           } else {
             setNearestBranch(null);
-            setMenu(null)
           }
         })
       } catch (error) {
