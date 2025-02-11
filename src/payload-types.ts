@@ -123,6 +123,7 @@ export interface Menu {
 export interface Media {
   id: string;
   altText: string;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -271,6 +272,7 @@ export interface MenusSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   altText?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

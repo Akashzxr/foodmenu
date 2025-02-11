@@ -6,6 +6,8 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import { createClient } from '@supabase/supabase-js'
+import { s3Storage } from '@payloadcms/storage-s3';
 
 import { Users } from './collections/Users'
 import { Branches } from './collections/Branches'
@@ -15,6 +17,7 @@ import { Items } from './collections/Items'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const supabase = createClient(process.env.SUPABASE_URL as string, process.env.SUPABASE_SERVICE_ROLE as string)
 
 export default buildConfig({
   admin: {
@@ -36,5 +39,23 @@ export default buildConfig({
   plugins: [
     payloadCloudPlugin(),
     // storage-adapter-placeholder
+    s3Storage({
+      collections: {
+        media: {
+          prefix: 'media',
+        }
+      },
+      bucket: process.env.S3_BUCKET as string,
+      config: {
+        forcePathStyle: true, // Important for using Supabase
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
+        },
+        region: process.env.S3_REGION,
+        endpoint: process.env.S3_ENDPOINT,
+      },
+    }),
   ],
+  
 })
